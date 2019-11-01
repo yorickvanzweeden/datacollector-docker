@@ -1,3 +1,8 @@
+The original StreamSets Data Collector uses Tensorflow 1.10, which is not compatible with new Tensorflow SavedModel versions. This docker image contains Tensorflow 1.15. Replace `streamsets/datacollector` by `yorickvanzweeden/streamsets_datacollector:tf1.15`.
+
+### ORIGINAL README
+___
+
 ![Data Collector Splash Image](https://raw.githubusercontent.com/streamsets/datacollector/master/datacollector_splash.png)
 
 StreamSets Data Collector is open source software for building dataflows quickly and easily, spanning on-premises, multi-cloud and edge infrastructure.

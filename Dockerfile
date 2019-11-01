@@ -27,7 +27,8 @@ RUN apk add --update --no-cache bash \
     libstdc++ \
     libuuid \
     sed \
-    sudo && \
+    sudo \
+    tar && \
     echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
 # We set a UID/GID for the SDC user because certain test environments require these to be consistent throughout
@@ -36,8 +37,8 @@ ARG SDC_UID=20159
 ARG SDC_GID=20159
 
 # Begin Data Collector installation
-ARG SDC_VERSION=3.2.0.0-SNAPSHOT
-ARG SDC_URL=http://nightly.streamsets.com.s3-us-west-2.amazonaws.com/datacollector/latest/tarball/streamsets-datacollector-core-${SDC_VERSION}.tgz
+ARG SDC_VERSION=3.11.0-SNAPSHOT
+ARG SDC_URL=https://archives.streamsets.com/datacollector/3.11.0/tarball/streamsets-datacollector-core-3.11.0.tgz
 ARG SDC_USER=sdc
 # SDC_HOME is where executables and related files are installed. Used in setup_mapr script.
 ARG SDC_HOME="/opt/streamsets-datacollector-${SDC_VERSION}"
@@ -77,8 +78,15 @@ RUN sudo chown -R sdc:sdc ${SDC_RESOURCES}/
 COPY sdc-extras/ ${STREAMSETS_LIBRARIES_EXTRA_DIR}/
 RUN sudo chown -R sdc:sdc ${STREAMSETS_LIBRARIES_EXTRA_DIR}/
 
+# Replace Tensorflow libraries
+RUN mkdir -p /opt/streamsets-datacollector-3.11.0-SNAPSHOT/streamsets-libs/streamsets-datacollector-tensorflow-lib/lib/*
+WORKDIR /opt/streamsets-datacollector-3.11.0-SNAPSHOT/streamsets-libs/streamsets-datacollector-tensorflow-lib/lib/
+COPY tf1.15/* ./
+RUN cat ./tf_jni_split_* > ./libtensorflow_jni-1.15.0.jar
+
 USER ${SDC_USER}
 EXPOSE 18630
 COPY docker-entrypoint.sh /
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["dc", "-exec"]
